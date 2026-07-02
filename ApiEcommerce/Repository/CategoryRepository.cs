@@ -45,10 +45,9 @@ public class CategoryRepository : ICategoryRepository
         return _db.Category.ToList();
     }
 
-    public Category GetCategory(int id)
+    public Category? GetCategory(int id)
     {
-        return _db.Category.FirstOrDefault(c => c.Id == id) ?? 
-        throw new InvalidOperationException($"Category with id {id} doesn't exists");
+        return _db.Category.FirstOrDefault(c => c.Id == id);
     }
 
     public bool Save()
