@@ -82,7 +82,7 @@ namespace ApiEcommerce.Controllers
             return CreatedAtRoute("GetProduct", new {productId = product.ProductId}, productDto);
         }
 
-        [HttpGet("searchByCategory/{categoryId:int}", Name = "GetProductsByCategory")]
+        [HttpGet("searchProductByCategory/{categoryId:int}", Name = "GetProductsByCategory")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
