@@ -77,7 +77,9 @@ namespace ApiEcommerce.Controllers
                 ModelState.AddModelError("CustomError", $"Something went wrong when saving the record ${product}");
                 return StatusCode(500, ModelState);
             }
-            return CreatedAtRoute("GetProduct", new {productId = product.ProductId}, product);
+            var createdProduct = _productRepository.GetProduct(product.ProductId);
+            var productDto = _mapper.Map<ProductDto>(createdProduct);
+            return CreatedAtRoute("GetProduct", new {productId = product.ProductId}, productDto);
         }
     }
 }
