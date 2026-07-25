@@ -98,5 +98,20 @@ namespace ApiEcommerce.Controllers
             return Ok(productsDto);
         }
 
+        [HttpGet("searchProductByName/{name}", Name = "GetProductsByName")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult GetProductsByName(string name)
+        {
+            var products = _productRepository.SearchProduct(name);
+            if (products.Count == 0)
+            {
+                return NotFound($"There are not products with name {name}");
+            }
+            var productsDto = _mapper.Map<List<ProductDto>>(products);
+            return Ok(productsDto);
+        }
     }
 }
