@@ -89,11 +89,6 @@ public class ProductRepository : IProductRepository
 
     }
 
-    public bool Save()
-    {
-        return _db.SaveChanges() >= 0;
-    }
-
     public ICollection<Product> SearchProduct(string name)
     {
         IQueryable<Product> query = _db.Products;
@@ -114,5 +109,11 @@ public class ProductRepository : IProductRepository
         product.UpdateAt = DateTime.Now;
         _db.Products.Update(product);
         return Save();
+    }
+
+
+    public bool Save()
+    {
+        return _db.SaveChanges() >= 0;
     }
 }
