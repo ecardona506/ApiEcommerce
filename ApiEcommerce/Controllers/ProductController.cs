@@ -49,7 +49,7 @@ namespace ApiEcommerce.Controllers
             return Ok(productDto);
         }
 
-                [HttpPost]
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
