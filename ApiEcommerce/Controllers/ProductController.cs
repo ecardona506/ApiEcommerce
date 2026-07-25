@@ -81,5 +81,22 @@ namespace ApiEcommerce.Controllers
             var productDto = _mapper.Map<ProductDto>(createdProduct);
             return CreatedAtRoute("GetProduct", new {productId = product.ProductId}, productDto);
         }
+
+        [HttpGet("searchByCategory/{categoryId:int}", Name = "GetProductsByCategory")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult GetProductsByCategory(int categoryId)
+        {
+            var products = _productRepository.GetProductsByCategory(categoryId);
+            if (products.Count == 0)
+            {
+                return NotFound($"There are not products with category id {categoryId}");
+            }
+            var productsDto = _mapper.Map<List<ProductDto>>(products);
+            return Ok(productsDto);
+        }
+
     }
 }
