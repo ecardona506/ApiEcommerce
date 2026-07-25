@@ -98,9 +98,9 @@ public class ProductRepository : IProductRepository
     {
         IQueryable<Product> query = _db.Products;
         if (!string.IsNullOrWhiteSpace(name))
-        {
+        { 
             query = query.Include(p => p.Category)
-                .Where(p => p.Name.ToLower().Trim() == name.ToLower().Trim());
+                .Where(p => p.Name.ToLower().Trim().Contains(name.ToLower().Trim()));
         }
         return query.OrderBy(p => p.Name).ToList();
     }
