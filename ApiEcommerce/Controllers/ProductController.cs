@@ -113,5 +113,30 @@ namespace ApiEcommerce.Controllers
             var productsDto = _mapper.Map<List<ProductDto>>(products);
             return Ok(productsDto);
         }
+
+        [HttpGet("BuyProduct/{name}/{quantity:int}", Name = "BuyProduct")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult BuyProduct(string name, int quantity)
+        {
+            if(string.IsNullOrWhiteSpace(name) || quantity <= 0)
+            {
+                return BadRequest($"The product's name or the quantity is not valid.");
+            }
+            var productFound = _productRepository.ProductExists(name);
+            if (!productFound)
+            {
+                return NotFound($"There product with name {name} doesn't exists.");                
+            }
+            if (!_productRepository.BuyProduct(name, quantity))
+            {
+                ModelState.AddModelError("CustomError", $"There's not enough products for {name} or the product can't be bought.");
+                return BadRequest(ModelState);
+            }
+            return Ok($"{quantity} {name} have been bought");
+        }
+
     }
 }
