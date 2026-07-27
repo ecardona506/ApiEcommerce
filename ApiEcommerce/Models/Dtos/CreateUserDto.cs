@@ -5,7 +5,7 @@ namespace ApiEcommerce.Models.Dtos;
 public class CreateUserDto
 {
     [Required(ErrorMessage = "The username field is required")]
-    public string? UserName { get; set; }
+    public string UserName { get; set; } = string.Empty;
     [Required(ErrorMessage = "The name field is required")]
     public string? Name { get; set; }
     [Required(ErrorMessage = "The password field is required")]
