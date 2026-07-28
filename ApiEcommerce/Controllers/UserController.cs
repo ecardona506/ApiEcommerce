@@ -1,7 +1,6 @@
-using ApiEcommerce.Repository;
+using ApiEcommerce.Models.Dtos; 
 using ApiEcommerce.Repository.IRepository;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiEcommerce.Controllers
@@ -16,6 +15,16 @@ namespace ApiEcommerce.Controllers
         {
             _userRepository = userRepository;
             _mapper = mapper;
+        }
+
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult GetUsers()
+        {
+            var users = _userRepository.GetUsers();
+            var usersDto = _mapper.Map<List<UserDto>>(users);
+            return Ok(usersDto);
         }
     }
 }
