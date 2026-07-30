@@ -73,5 +73,26 @@ namespace ApiEcommerce.Controllers
             }
             return CreatedAtRoute("GetUser", new {id=result.Id}, result);
         } 
+
+        [HttpPost("Login", Name = "LoginUser")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> LoginUser([FromBody] LoginUserDto loginUserDto)
+        {
+            if (loginUserDto == null || !ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var user = await _userRepository.Login(loginUserDto);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            return Ok(user);
+        } 
+
     }
 }
