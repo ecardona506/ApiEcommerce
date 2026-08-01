@@ -12,7 +12,7 @@ namespace ApiEcommerce.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors(CorsPolicyNames.AllowSpecificOrigin)]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryRepository _categoryRepository;

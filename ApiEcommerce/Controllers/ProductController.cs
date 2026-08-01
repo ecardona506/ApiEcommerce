@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ApiEcommerce.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
