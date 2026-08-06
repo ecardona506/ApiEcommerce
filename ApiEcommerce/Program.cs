@@ -5,6 +5,7 @@ using ApiEcommerce.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 var secretKey = builder.Configuration.GetValue<string>("ApiSettings:SecretKey");
@@ -14,7 +15,17 @@ if (string.IsNullOrEmpty(secretKey))
 }
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(option =>
+{
+    option.CacheProfiles.Add("Default10", new CacheProfile()
+    {
+        Duration = 10
+    });
+    option.CacheProfiles.Add("Default20", new CacheProfile()
+    {
+        Duration = 20
+    });
+});
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddResponseCaching(options =>
 {
