@@ -6,11 +6,14 @@ using ApiEcommerce.Models.Dtos;
 using ApiEcommerce.Models;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authorization;
+using Asp.Versioning;
 
 namespace ApiEcommerce.Controllers
 {
     [Authorize(Roles = "Admin")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion(1.0)]
+    [ApiVersion(2.0)]
     [ApiController]
     public class ProductController : ControllerBase
     {
