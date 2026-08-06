@@ -79,6 +79,23 @@ builder.Services.AddSwaggerGen( options =>
             new List<string>()
         }
     });
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "API Ecommerce",
+        Description = "API to manage categories, products and users",
+        TermsOfService = new Uri("http://example.com/terms-of-service"),
+        Contact =  new OpenApiContact
+        {
+            Name = "Esteban Cardona",
+            Url = new Uri("https://github.com/ecardona506")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Usage license",
+            Url = new Uri("http://example.com/license")
+        }
+    });
 });
 
 builder.Services.AddCors(options =>
