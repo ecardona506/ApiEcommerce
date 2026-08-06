@@ -18,7 +18,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddResponseCaching(options =>
 {
-    options.MaximumBodySize = 1024;
+    options.MaximumBodySize = 1024 * 1024;
     options.UseCaseSensitivePaths = true;
 });
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
