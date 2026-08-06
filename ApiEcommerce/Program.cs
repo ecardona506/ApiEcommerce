@@ -5,6 +5,7 @@ using ApiEcommerce.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 var secretKey = builder.Configuration.GetValue<string>("ApiSettings:SecretKey");
@@ -14,8 +15,17 @@ if (string.IsNullOrEmpty(secretKey))
 }
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(option =>
+{
+    option.CacheProfiles.Add(CacheProfiles.Default10, CacheProfiles.Profile10);
+    option.CacheProfiles.Add(CacheProfiles.Default20, CacheProfiles.Profile20);
+});
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddResponseCaching(options =>
+{
+    options.MaximumBodySize = 1024 * 1024;
+    options.UseCaseSensitivePaths = true;
+});
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -61,6 +71,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors(CorsPolicyNames.AllowSpecificOrigin);
+
+app.UseResponseCaching();
 
 app.UseAuthentication();
 
