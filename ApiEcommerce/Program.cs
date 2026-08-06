@@ -17,14 +17,8 @@ if (string.IsNullOrEmpty(secretKey))
 
 builder.Services.AddControllers(option =>
 {
-    option.CacheProfiles.Add("Default10", new CacheProfile()
-    {
-        Duration = 10
-    });
-    option.CacheProfiles.Add("Default20", new CacheProfile()
-    {
-        Duration = 20
-    });
+    option.CacheProfiles.Add(CacheProfiles.Default10, CacheProfiles.Profile10);
+    option.CacheProfiles.Add(CacheProfiles.Default20, CacheProfiles.Profile20);
 });
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddResponseCaching(options =>
