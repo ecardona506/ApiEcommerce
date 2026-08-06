@@ -30,6 +30,7 @@ namespace ApiEcommerce.Controllers.V1
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [Obsolete("This method is deprecated. Use v2 instead")]
         public IActionResult GetCategories()
         {
             var categories = _categoryRepository.GetCategories();
