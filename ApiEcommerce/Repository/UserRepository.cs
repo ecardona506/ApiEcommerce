@@ -148,6 +148,7 @@ public class UserRepository : IUserRepository
             var createdUser = _db.ApplicationUsers.FirstOrDefault(u => u.UserName == createUserDto.UserName);
             return _mapper.Map<UserDataDto>(createdUser);
         }
-        throw new ApplicationException("User couldn't be registered");
+        var errors = string.Join(",", result.Errors.Select(e => e.Description));
+        throw new ApplicationException(errors);
     }
 }
