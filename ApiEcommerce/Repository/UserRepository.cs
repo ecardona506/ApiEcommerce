@@ -1,5 +1,6 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Numerics;
 using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Text;
@@ -33,14 +34,14 @@ public class UserRepository : IUserRepository
         _roleManager = roleManager;
         _mapper = mapper;
     }
-    public User? GetUser(int id)
+    public ApplicationUser? GetUser(string id)
     {
-        return _db.Users.FirstOrDefault(u => u.Id == id);
+        return _db.ApplicationUsers.FirstOrDefault(u => u.Id == id);
     }
 
-    public ICollection<User> GetUsers()
+    public ICollection<ApplicationUser> GetUsers()
     {
-        return _db.Users.OrderBy(u => u.UserName).ToList();
+        return _db.ApplicationUsers.OrderBy(u => u.UserName).ToList();
     }
 
     public bool IsUserUnique(string username)
