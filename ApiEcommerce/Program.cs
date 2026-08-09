@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Identity;
+using ApiEcommerce.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var secretKey = builder.Configuration.GetValue<string>("ApiSettings:SecretKey");
@@ -30,7 +31,7 @@ builder.Services.AddResponseCaching(options =>
     options.UseCaseSensitivePaths = true;
 });
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
