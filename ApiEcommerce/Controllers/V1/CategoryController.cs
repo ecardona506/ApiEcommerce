@@ -6,10 +6,12 @@ using AutoMapper;
 using Microsoft.AspNetCore.Cors;
 using ApiEcommerce.Constants;
 using Microsoft.AspNetCore.Authorization;
+using Asp.Versioning;
 
-namespace ApiEcommerce.Controllers
+namespace ApiEcommerce.Controllers.V1
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     [ApiController]
     [EnableCors(CorsPolicyNames.AllowSpecificOrigin)]
     [Authorize(Roles = "Admin")]
@@ -28,6 +30,7 @@ namespace ApiEcommerce.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [Obsolete("This method is deprecated. Use v2 instead")]
         public IActionResult GetCategories()
         {
             var categories = _categoryRepository.GetCategories();

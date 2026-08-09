@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
+using Asp.Versioning;
 
 var builder = WebApplication.CreateBuilder(args);
 var secretKey = builder.Configuration.GetValue<string>("ApiSettings:SecretKey");
@@ -78,6 +79,40 @@ builder.Services.AddSwaggerGen( options =>
             new List<string>()
         }
     });
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "API Ecommerce",
+        Description = "API to manage categories, products and users",
+        TermsOfService = new Uri("http://example.com/terms-of-service"),
+        Contact =  new OpenApiContact
+        {
+            Name = "Esteban Cardona",
+            Url = new Uri("https://github.com/ecardona506")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Usage license",
+            Url = new Uri("http://example.com/license")
+        }
+    });
+    options.SwaggerDoc("v2", new OpenApiInfo
+    {
+        Version = "v2",
+        Title = "API Ecommerce V2",
+        Description = "API to manage categories, products and users",
+        TermsOfService = new Uri("http://example.com/terms-of-service"),
+        Contact =  new OpenApiContact
+        {
+            Name = "Esteban Cardona",
+            Url = new Uri("https://github.com/ecardona506")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Usage license",
+            Url = new Uri("http://example.com/license")
+        }
+    });
 });
 
 builder.Services.AddCors(options =>
@@ -87,6 +122,19 @@ builder.Services.AddCors(options =>
        builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
    }); 
 });
+var apiVersioningBuilder = builder.Services.AddApiVersioning(options =>
+{
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1,0);
+    options.ReportApiVersions = true;
+    // options.ApiVersionReader = ApiVersionReader.Combine(new QueryStringApiVersionReader("api-version"));
+});
+
+apiVersioningBuilder.AddApiExplorer(option =>
+{
+    option.GroupNameFormat = "'v'VVV";
+    option.SubstituteApiVersionInUrl = true;
+});
 
 var app = builder.Build();
 
@@ -94,7 +142,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json","Api Ecommerce v1");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json","Api Ecommerce v2");
+    });
 }
 
 app.UseHttpsRedirection();
