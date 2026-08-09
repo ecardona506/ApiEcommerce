@@ -8,6 +8,8 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Identity;
+using ApiEcommerce.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var secretKey = builder.Configuration.GetValue<string>("ApiSettings:SecretKey");
@@ -28,6 +30,10 @@ builder.Services.AddResponseCaching(options =>
     options.MaximumBodySize = 1024 * 1024;
     options.UseCaseSensitivePaths = true;
 });
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();

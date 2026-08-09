@@ -1,11 +1,14 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Numerics;
 using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Text;
 using ApiEcommerce.Models;
 using ApiEcommerce.Models.Dtos;
 using ApiEcommerce.Repository.IRepository;
+using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,20 +18,30 @@ public class UserRepository : IUserRepository
 {
     public readonly ApplicationDbContext _db;
     private string? secretKey;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly IMapper _mapper;
 
-    public UserRepository(ApplicationDbContext db, IConfiguration configuration)
+    public UserRepository(ApplicationDbContext db,
+                        IConfiguration configuration,
+                        UserManager<ApplicationUser> userManager,
+                        RoleManager<IdentityRole> roleManager,
+                        IMapper mapper)
     {
         _db = db;
         secretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
+        _userManager = userManager;
+        _roleManager = roleManager;
+        _mapper = mapper;
     }
-    public User? GetUser(int id)
+    public ApplicationUser? GetUser(string id)
     {
-        return _db.Users.FirstOrDefault(u => u.Id == id);
+        return _db.ApplicationUsers.FirstOrDefault(u => u.Id == id);
     }
 
-    public ICollection<User> GetUsers()
+    public ICollection<ApplicationUser> GetUsers()
     {
-        return _db.Users.OrderBy(u => u.UserName).ToList();
+        return _db.ApplicationUsers.OrderBy(u => u.UserName).ToList();
     }
 
     public bool IsUserUnique(string username)
@@ -47,7 +60,7 @@ public class UserRepository : IUserRepository
                 Message = "Username is required"
             };
         }
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.UserName.ToLower().Trim() == loginUserDto.UserName.ToLower().Trim());
+        var user = await _db.ApplicationUsers.FirstOrDefaultAsync<ApplicationUser>(u => u.UserName != null && u.UserName.ToLower().Trim() == loginUserDto.UserName.ToLower().Trim());
         if (user == null)
         {
             return new LoginUserResponseDto()
@@ -57,7 +70,17 @@ public class UserRepository : IUserRepository
                 Message = "User not found"
             };
         }
-        if (!BCrypt.Net.BCrypt.Verify(loginUserDto.Password,user.Password))
+        if (loginUserDto.Password == null)
+        {
+            return new LoginUserResponseDto()
+            {
+                Token = "",
+                User = null,
+                Message = "Password required"
+            };
+        }
+        bool isPasswordValid = await _userManager.CheckPasswordAsync(user, loginUserDto.Password);
+        if (!isPasswordValid)
         {
             return new LoginUserResponseDto()
             {
@@ -71,14 +94,15 @@ public class UserRepository : IUserRepository
         {
             throw new InvalidOperationException("SecretKey is not set");
         }
+        var roles = await _userManager.GetRolesAsync(user);
         var key = Encoding.UTF8.GetBytes(secretKey);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
           Subject = new ClaimsIdentity(new[]
           {
               new Claim("id", user.Id.ToString()),
-              new Claim("username", user.UserName),
-              new Claim(ClaimTypes.Role,user.Role ?? string.Empty)
+              new Claim("username", user.UserName ?? string.Empty),
+              new Claim(ClaimTypes.Role, roles.FirstOrDefault() ?? string.Empty)
           }
           ),
           Expires = DateTime.UtcNow.AddHours(2),
@@ -88,29 +112,43 @@ public class UserRepository : IUserRepository
         return new LoginUserResponseDto()
         {
             Token = handlerToken.WriteToken(token),
-            User = new RegisterUserDto()
-            {
-                UserName = user.UserName,
-                Name = user.Name,
-                Role = user.Role,
-                Password = user.Password ?? string.Empty
-            },
+            User = _mapper.Map<UserDataDto>(user),
             Message = "User logged succesfully"
         };
     }   
 
-    public async Task<User> Register(CreateUserDto createUserDto)
+    public async Task<UserDataDto> Register(CreateUserDto createUserDto)
     {
-        var encriptedPassword = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password);
-        var user = new User()
+        if (string.IsNullOrEmpty(createUserDto.UserName))
+        {
+            throw new ArgumentNullException("Username is required");
+        }
+        if (createUserDto.Password == null)
+        {
+            throw new ArgumentNullException("Password is required");
+        }
+        var user = new ApplicationUser()
         {
             UserName = createUserDto.UserName,
-            Name = createUserDto.Name,
-            Password = encriptedPassword,
-            Role = createUserDto.Role
+            Email = createUserDto.UserName,
+            NormalizedEmail = createUserDto.UserName.Trim().ToLower(),
+            Name = createUserDto.Name
         };
-        _db.Users.Add(user);
-        await _db.SaveChangesAsync();
-        return user;
+        var result = await _userManager.CreateAsync(user, createUserDto.Password);
+        if (result.Succeeded)
+        {
+            var userRole = createUserDto.Role ?? "User";
+            var roleExists = await _roleManager.RoleExistsAsync(userRole);
+            if (!roleExists)
+            {
+                var identityRole = new IdentityRole(userRole);
+                await _roleManager.CreateAsync(identityRole);
+            }
+            await _userManager.AddToRoleAsync(user, userRole);
+            var createdUser = _db.ApplicationUsers.FirstOrDefault(u => u.UserName == createUserDto.UserName);
+            return _mapper.Map<UserDataDto>(createdUser);
+        }
+        var errors = string.Join(",", result.Errors.Select(e => e.Description));
+        throw new ApplicationException(errors);
     }
 }
