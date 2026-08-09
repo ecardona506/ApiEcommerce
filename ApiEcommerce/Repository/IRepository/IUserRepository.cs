@@ -8,5 +8,5 @@ public interface IUserRepository
     User? GetUser(int id);
     bool IsUserUnique(string username);
     Task<LoginUserResponseDto> Login(LoginUserDto loginUserDto);
-    Task<User> Register(CreateUserDto createUserDto);
+    Task<UserDataDto> Register(CreateUserDto createUserDto);
 }
