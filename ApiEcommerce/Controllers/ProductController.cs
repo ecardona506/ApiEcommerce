@@ -174,7 +174,7 @@ namespace ApiEcommerce.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult UpdateProduct(int productId, [FromBody] UpdateProductDto updateProductDto)
+        public IActionResult UpdateProduct(int productId, [FromForm] UpdateProductDto updateProductDto)
         {
             if (updateProductDto == null)
             {
@@ -191,6 +191,31 @@ namespace ApiEcommerce.Controllers
                 return BadRequest(ModelState);                
             }
             var product = _mapper.Map<Product>(updateProductDto);
+            product.ProductId = productId;
+            if( updateProductDto.Image != null)
+            {
+                string fileName = product.ProductId + Guid.NewGuid().ToString() + Path.GetExtension(updateProductDto.Image.FileName);
+                var imageDirectory = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot","ProductsImages");
+                if (!Directory.Exists(imageDirectory))
+                {
+                    Directory.CreateDirectory(imageDirectory);
+                }
+                var filePath = Path.Combine(imageDirectory, fileName);
+                var file = new FileInfo(filePath);
+                if (file.Exists)
+                {
+                    file.Delete();
+                }
+                using var fileStream = new FileStream(filePath, FileMode.Create);
+                updateProductDto.Image.CopyTo(fileStream);
+                var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+                product.ImageUrl = $"{baseUrl}/ProductsImages/{fileName}";
+                product.ImageUrlLocal = filePath;                
+            }
+            else
+            {
+                product.ImageUrl = "https://placehold.co/300x300";
+            }
             if (!_productRepository.UpdateProduct(product))
             {
                 ModelState.AddModelError("CustomError", $"Something went wrong while updating the record ${product}");
