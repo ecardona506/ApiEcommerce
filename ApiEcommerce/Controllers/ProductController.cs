@@ -212,10 +212,6 @@ namespace ApiEcommerce.Controllers
                 product.ImageUrl = $"{baseUrl}/ProductsImages/{fileName}";
                 product.ImageUrlLocal = filePath;                
             }
-            else
-            {
-                product.ImageUrl = "https://placehold.co/300x300";
-            }
             if (!_productRepository.UpdateProduct(product))
             {
                 ModelState.AddModelError("CustomError", $"Something went wrong while updating the record ${product}");
