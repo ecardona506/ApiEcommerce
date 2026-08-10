@@ -81,7 +81,7 @@ namespace ApiEcommerce.Controllers
             if( createProductDto.Image != null)
             {
                 string fileName = product.ProductId + Guid.NewGuid().ToString() + Path.GetExtension(createProductDto.Image.FileName);
-                var imageDirectory = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot","ProductsImages");
+                var imageDirectory = Path.Combine(Directory.GetCurrentDirectory(),"Static","ProductsImages");
                 if (!Directory.Exists(imageDirectory))
                 {
                     Directory.CreateDirectory(imageDirectory);
@@ -195,7 +195,7 @@ namespace ApiEcommerce.Controllers
             if( updateProductDto.Image != null)
             {
                 string fileName = product.ProductId + Guid.NewGuid().ToString() + Path.GetExtension(updateProductDto.Image.FileName);
-                var imageDirectory = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot","ProductsImages");
+                var imageDirectory = Path.Combine(Directory.GetCurrentDirectory(),"Static","ProductsImages");
                 if (!Directory.Exists(imageDirectory))
                 {
                     Directory.CreateDirectory(imageDirectory);
