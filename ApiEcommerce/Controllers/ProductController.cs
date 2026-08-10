@@ -61,7 +61,7 @@ namespace ApiEcommerce.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult CreateProduct([FromBody] CreateProductDto createProductDto)
+        public IActionResult CreateProduct([FromForm] CreateProductDto createProductDto)
         {
             if (createProductDto == null)
             {
@@ -78,6 +78,30 @@ namespace ApiEcommerce.Controllers
                 return BadRequest(ModelState);                
             }
             var product = _mapper.Map<Product>(createProductDto);
+            if( createProductDto.Image != null)
+            {
+                string fileName = product.ProductId + Guid.NewGuid().ToString() + Path.GetExtension(createProductDto.Image.FileName);
+                var imageDirectory = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot","ProductsImages");
+                if (!Directory.Exists(imageDirectory))
+                {
+                    Directory.CreateDirectory(imageDirectory);
+                }
+                var filePath = Path.Combine(imageDirectory, fileName);
+                var file = new FileInfo(filePath);
+                if (file.Exists)
+                {
+                    file.Delete();
+                }
+                using var fileStream = new FileStream(filePath, FileMode.Create);
+                createProductDto.Image.CopyTo(fileStream);
+                var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+                product.ImageUrl = $"{baseUrl}/ProductsImages/{fileName}";
+                product.ImageUrlLocal = filePath;                
+            }
+            else
+            {
+                product.ImageUrl = "https://placehold.co/300x300";
+            }
             if (!_productRepository.CreateProduct(product))
             {
                 ModelState.AddModelError("CustomError", $"Something went wrong when saving the record ${product}");
