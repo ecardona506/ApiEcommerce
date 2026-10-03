@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ApiEcommerce.Repository.IRepository;
-using AutoMapper;
+using MapsterMapper;
 using ApiEcommerce.Models.Dtos;
 using ApiEcommerce.Models;
 using System.Security.Cryptography.X509Certificates;

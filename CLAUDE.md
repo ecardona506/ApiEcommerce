@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-ASP.NET Core 8 Web API (single project `ApiEcommerce/`, solution `ApiEcommerce.slnx`) for managing categories, products and users. SQL Server via EF Core, ASP.NET Identity + JWT auth, AutoMapper, Asp.Versioning, Swagger. There is no test project.
+ASP.NET Core 8 Web API (single project `ApiEcommerce/`, solution `ApiEcommerce.slnx`) for managing categories, products and users. SQL Server via EF Core, ASP.NET Identity + JWT auth, Mapster, Asp.Versioning, Swagger. There is no test project.
 
 ## Commands
 
@@ -32,7 +32,7 @@ dotnet ef database update --project ApiEcommerce
 
 ## Architecture
 
-Request flow: **Controller → Repository (interface in `Repository/IRepository/`) → `ApplicationDbContext`**, with AutoMapper profiles in `Mapping/` converting entities ↔ DTOs (`Models/Dtos/`). Repositories are registered as scoped in `Program.cs`; AutoMapper picks up all `Profile` classes in the assembly automatically. Repositories return entities and `bool` success flags (`Save()` pattern); controllers do validation, populate `ModelState` with `"CustomError"` keys, and map to DTOs.
+Request flow: **Controller → Repository (interface in `Repository/IRepository/`) → `ApplicationDbContext`**, with Mapster configs in `Mapping/` converting entities ↔ DTOs (`Models/Dtos/`). Repositories are registered as scoped in `Program.cs`; `TypeAdapterConfig.GlobalSettings.Scan` picks up all `IRegister` classes in the assembly, and `MapsterMapper.IMapper` (`ServiceMapper`) is injected into controllers/repositories. Same-named members map by convention, so only non-trivial mappings strictly need config. Repositories return entities and `bool` success flags (`Save()` pattern); controllers do validation, populate `ModelState` with `"CustomError"` keys, and map to DTOs.
 
 - **Data / seeding**: `ApplicationDbContext` extends `IdentityDbContext<ApplicationUser>`. Seed data (roles `Admin`/`User`, users `admin@admin.com`/`Admin123!` and `user@user.com`/`User123!`, categories, products) lives in `Data/DataSeeder.cs` and runs through EF Core's `UseSeeding` hook configured in `Program.cs` (fires on `database update` / `EnsureCreated`), not via `HasData` in migrations.
 - **Users**: Identity's `ApplicationUser` is the real user model (login/register in `UserRepository` via `UserManager`/`RoleManager`, JWT with a single `Role` claim, 2h expiry). `Models/User.cs` / `DbSet<User> Users` is a legacy pre-Identity table — note `IsUserUnique` still queries it.

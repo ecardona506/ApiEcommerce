@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ApiEcommerce.Repository.IRepository;
 using ApiEcommerce.Models.Dtos;
-using AutoMapper;
+using MapsterMapper;
 using Microsoft.AspNetCore.Cors;
 using ApiEcommerce.Constants;
 using Microsoft.AspNetCore.Authorization;
