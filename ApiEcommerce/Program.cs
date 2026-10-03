@@ -5,11 +5,11 @@ using ApiEcommerce.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Identity;
 using ApiEcommerce.Models;
+using ApiEcommerce.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 var secretKey = builder.Configuration.GetValue<string>("ApiSettings:SecretKey");
@@ -24,7 +24,17 @@ builder.Services.AddControllers(option =>
     option.CacheProfiles.Add(CacheProfiles.Default10, CacheProfiles.Profile10);
     option.CacheProfiles.Add(CacheProfiles.Default20, CacheProfiles.Profile20);
 });
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+var dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+  options.UseSqlServer(dbConnectionString)
+  .UseSeeding((context, _) =>
+  {
+    var appContext = (ApplicationDbContext)context;
+    DataSeeder.seedData(appContext);
+  })
+);
+
 builder.Services.AddResponseCaching(options =>
 {
     options.MaximumBodySize = 1024 * 1024;
