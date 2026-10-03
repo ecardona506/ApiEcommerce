@@ -58,12 +58,12 @@ namespace ApiEcommerce.Controllers
             }
             var products = _productRepository.GetPaginatedProducts(pageNumber, pageSize);
             var productDto = _mapper.Map<List<ProductDto>>(products);
-            var paginatedReponse = new 
+            var paginatedReponse = new PaginationResponse<ProductDto>
             {
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 TotalPages = totalPages,
-                Products = productDto
+                Items = productDto
             };
             return Ok(paginatedReponse);
         }
